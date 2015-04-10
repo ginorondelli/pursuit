@@ -5,7 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.neo4j.graphdb.Direction;
+import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.vaadin.neo4j.Utils;
 
 @NodeEntity
@@ -38,6 +41,10 @@ public class Customer extends AbstractPositionableEntity implements Serializable
 	private Set<String> consultancy;
 	private Set<String> managedServices;
 	private Set<String> telecoms;
+	
+    @RelatedTo(type = "SOURCE", direction = Direction.BOTH)
+    @Fetch
+    public Set<Source> sources;
 
 	public String getCustomerName() {
 		return customerName;
@@ -123,6 +130,13 @@ public class Customer extends AbstractPositionableEntity implements Serializable
 	}
 	public void setTelecoms(Set<String> telecoms) {
 		this.telecoms = telecoms;
+	}
+	
+	public Set<Source> getSources() {
+		return sources;
+	}
+	public void setSources(Set<Source> sources) {
+		this.sources = sources;
 	}
 	@Override
 	public String toString() {

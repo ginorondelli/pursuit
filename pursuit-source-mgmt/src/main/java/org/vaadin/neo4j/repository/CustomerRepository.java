@@ -18,6 +18,6 @@ public interface CustomerRepository extends GraphRepository<Customer> {
     		+ "WHERE c.customerName = {0} "
     		+ "AND c.customerSectors = {1} "
     		+ "AND c.turnoverBanding = {2} RETURN c")
-    Set<Customer>getCustomerMatches(String sourceName, Set<String> sectors, Set<String> turnoverBanding);
+    Set<Customer>getCustomerMatches(String sourceName, Set<String> sectors, String turnoverBanding);
     
 }

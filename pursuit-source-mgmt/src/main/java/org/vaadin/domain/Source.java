@@ -21,19 +21,19 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	private String sourceName;
 	private String agentSourced;
 
-    @RelatedTo(type = "CUSTOMER", direction = Direction.OUTGOING)
+    @RelatedTo(type = "CUSTOMER", direction = Direction.BOTH)
     @Fetch
     public Set<Customer> customers;
 	
 	private LinkedHashSet<String>sourceSectors; 
 	
 	//Size of source
-	private Set<String> turnoverBanding;
-	private Set<String> employeeBanding;
+	private String turnoverBanding;
+	private String employeeBanding;
 	
 	//Geographical Criteria
-	private Set<String> region;
-	private Set<String> postCodes;
+	private String region;
+	private String postCodes;
 	
 	private Set<String> solutions;
 	private Set<String> consultancy;
@@ -48,28 +48,28 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 		this.sourceSectors = Utils.enforceSetOrder(sourceSectors);
 	}	
 	
-	public Set<String> getTurnoverBanding() {
+	public String getTurnoverBanding() {
 		return turnoverBanding;
 	}
-	public void setTurnoverBanding(Set<String> turnoverBanding) {
-		this.turnoverBanding = Utils.enforceSetOrder(turnoverBanding);
+	public void setTurnoverBanding(String turnoverBanding) {
+		this.turnoverBanding = turnoverBanding;
 	}
-	public Set<String> getEmployeeBanding() {
+	public String getEmployeeBanding() {
 		return employeeBanding;
 	}
-	public void setEmployeeBanding(Set<String> employeeBanding) {
+	public void setEmployeeBanding(String employeeBanding) {
 		this.employeeBanding = employeeBanding;
 	}
-	public Set<String> getRegion() {
+	public String getRegion() {
 		return region;
 	}
-	public void setRegion(Set<String> region) {
+	public void setRegion(String region) {
 		this.region = region;
 	}
-	public Set<String> getPostCodes() {
+	public String getPostCodes() {
 		return postCodes;
 	}
-	public void setPostCodes(Set<String> postCodes) {
+	public void setPostCodes(String postCodes) {
 		this.postCodes = postCodes;
 	}
 	public String getSourceName() {
@@ -109,49 +109,77 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	public void setTelecoms(Set<String> telecoms) {
 		this.telecoms = telecoms;
 	}
-	
+
+	public Set<Customer> getCustomers() {
+		return customers;
+	}
+	public void setCustomers(Set<Customer> customers) {
+		this.customers = customers;
+	}
+	/** 
+	 * Contains the algorithm for matching this Source with a given Customer
+	 * Brevity in style and likely some performance is sacrificed for readability. 
+	 * @param customer
+	 * @return
+	 */
 	public boolean matchesCustomer(Customer customer) {
-//		EqualsBuilder equals = new EqualsBuilder();
-//		equals.append(customer.getCustomerName(), getSourceName());
-//	
-		boolean equals = false;
-		if (null != customer.getCustomerName() && null != getSourceName()
-				&& !customer.getCustomerName().equals(getSourceName())) {
-			return false;
+
+		/*
+		 *  Algo for matching as explained by P Byrne
+		 * 	not name
+		 * 	not Agent source
+		 *	Any source sector matches 
+		 *	AND
+		 *	(Size of source OR employee)
+		 *	AND 
+		 *	(Region OR postcode)
+		 *	AND 
+		 *	(one of solutions OR one of consultancy OR one of managed services OR one of telecoms) == Match
+		 *
+		 */
+		
+		boolean matchesSoFar = false;
+		//Any source sector
+		matchesSoFar=Utils.checkContentsOfCollections(sourceSectors, customer.getCustomerSectors());
+		// AND Either employeeBanding OR turnoverBanding
+		if (matchesSoFar) {
+			if (Utils.checkContentsOfCollections(turnoverBanding, customer.getTurnoverBanding())||
+					Utils.checkContentsOfCollections(employeeBanding, customer.getEmployeeBanding())) {
+				matchesSoFar=true;
+			} else {
+				matchesSoFar=false;
+			}
 		}
-//		if (null!=customer.getCustomerSectors().size()==getSourceSectors().size()
-//				&&!customer.getCustomerSectors().equals(getSourceSectors())) {
-//			return false;
-//		}
-//
-//		if (
-//				equals=customer.getTurnoverBanding().equals(getTurnoverBanding())){
-//			return false;
-//		}
-//		if (!customer.getEmployeeBanding().equals(getEmployeeBanding())){
-//			return false;
-//		}
-//		if (!customer.getRegion().equals(getRegion())){
-//			return false;
-//		}
-//		if (!customer.getPostCodes().equals(getPostCodes())){
-//			return false;
-//		}
-//		if (!customer.getSolutions().equals(getSolutions())){
-//			return false;
-//		}
-//		if (!customer.getConsultancy().equals(getConsultancy())){
-//			return false;
-//		}
-//		if (!customer.getManagedServices().equals(getManagedServices())){
-//			return false;
-//		}
-//		if (!customer.getTelecoms().equals(getTelecoms())){
-//			return false;
-//		}
-	return equals;
+		// AND Either Region OR Postcode
+		if (matchesSoFar) {
+			if (Utils.checkContentsOfCollections(region, customer.getRegion())||
+					Utils.checkContentsOfCollections(postCodes, customer.getPostCodes())) {
+				matchesSoFar=true;
+			} else {
+				matchesSoFar=false;
+			}
+			
+		}
+		// AND Any Solutions OR Any Consultancy OR Any Managed Service OR Any Telecoms
+		if (matchesSoFar) {
+			if (Utils.checkContentsOfCollections(solutions, customer.getSolutions())||
+					Utils.checkContentsOfCollections(consultancy, customer.getConsultancy())||
+					Utils.checkContentsOfCollections(telecoms, customer.getTelecoms())) {
+				matchesSoFar=true;
+			} else {
+				matchesSoFar=false;
+			}
+		}
+
+	return matchesSoFar;
 	}
 	
+	public boolean doMatch() {
+		return (null!=sourceSectors&&sourceSectors.size()>0&&
+				null!=turnoverBanding||null!=employeeBanding&&
+				null!=region||null!=postCodes&&
+				null!=solutions&&solutions.size()>0&&null!=consultancy&&consultancy.size()>0&&null!=managedServices&&managedServices.size()>0&&null!=telecoms&&telecoms.size()>0);
+	}
 	
 	@Override
 	public String toString() {

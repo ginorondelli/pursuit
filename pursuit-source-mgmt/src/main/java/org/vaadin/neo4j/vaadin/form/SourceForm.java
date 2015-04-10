@@ -1,5 +1,8 @@
 package org.vaadin.neo4j.vaadin.form;
 
+
+import java.util.Collection;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.vaadin.maddon.ListContainer;
 import org.vaadin.maddon.fields.MTable;
 import org.vaadin.maddon.fields.MTextField;
 import org.vaadin.maddon.form.AbstractForm;
+import org.vaadin.maddon.layouts.MHorizontalLayout;
 import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.controller.SourceFormController;
@@ -19,13 +23,15 @@ import org.vaadin.spring.VaadinComponent;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBusListener;
 
+import com.vaadin.server.Page;
+import com.vaadin.shared.Position;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.ListSelect;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.UI;
@@ -48,12 +54,12 @@ public class SourceForm extends AbstractForm<Source> {
     TwinColSelect sourceSectors = new TwinColSelect("Source Sector");
    
     HorizontalSplitPanel sizeOfSourcePanel = new HorizontalSplitPanel();
-    ListSelect turnoverBanding = new ListSelect("Turnover Banding");
-    ListSelect employeeBanding = new ListSelect("Employee Banding");
+    ComboBox turnoverBanding = new ComboBox("Turnover Banding");
+    ComboBox employeeBanding = new ComboBox("Employee Banding");
     
     Label geographicalCriteriaLabel = new Label("Geographical Criteria");
-    TwinColSelect region = new TwinColSelect("Region");
-    TwinColSelect postCodes = new TwinColSelect("Post Codes");
+    ComboBox region = new ComboBox("Region");
+    ComboBox postCodes = new ComboBox("Post Codes");
 
     Label typeofSourceProject = new Label("Type of Source Project");
     TwinColSelect solutions = new TwinColSelect("Solutions");
@@ -83,28 +89,28 @@ public class SourceForm extends AbstractForm<Source> {
         sourceSectors.setLeftColumnCaption("Available options");
         sourceSectors.setRightColumnCaption("Selected options");
         
-        turnoverBanding.setMultiSelect(true);
-        employeeBanding.setMultiSelect(true);
+        turnoverBanding.setMultiSelect(false);
+        employeeBanding.setMultiSelect(false);
         
         sizeOfSourcePanel.setCaption("Size of Source");
         sizeOfSourcePanel.setSplitPosition(50, Unit.PERCENTAGE);
         sizeOfSourcePanel.setFirstComponent(turnoverBanding);
         sizeOfSourcePanel.setSecondComponent(employeeBanding);
         
-        region.setRows(6);
+//        region.setRows(6);
         region.setNullSelectionAllowed(true);
-        region.setMultiSelect(true);
-        region.setImmediate(true);
-        region.setLeftColumnCaption("Available options");
-        region.setRightColumnCaption("Selected options");
+        region.setMultiSelect(false);
+//        region.setImmediate(true);
+//        region.setLeftColumnCaption("Available options");
+//        region.setRightColumnCaption("Selected options");
       
-        postCodes.setRows(6);
+//        postCodes.setRows(6);
         postCodes.setNullSelectionAllowed(true);
-        postCodes.setMultiSelect(true);
-        postCodes.setImmediate(true);
-        postCodes.setLeftColumnCaption("Available options");
-        postCodes.setRightColumnCaption("Selected options");   	
- 
+        postCodes.setMultiSelect(false);
+//        postCodes.setImmediate(true);
+//        postCodes.setLeftColumnCaption("Available options");
+//        postCodes.setRightColumnCaption("Selected options");   	
+// 
         initTypeOfSourceProject();
         
         setSavedHandler(sourceFormController);
@@ -183,23 +189,31 @@ public class SourceForm extends AbstractForm<Source> {
 	
     @Override
     protected Component createContent() {
-        return new MVerticalLayout(
-                new FormLayout(
-                        sourceName,
-                        agentSourced,
-                        sourceSectors,
-                        sizeOfSourcePanel,
-                        geographicalCriteriaLabel,
-                        region,
-                        postCodes,
-                        typeofSourceProject,
-                        solutions,
-                        consultancy,
-                        managedServices,
-                        telecoms
-                ),
-                getToolbar()
-        );
+    	MTable<Customer> table = new MTable<>(Customer.class).
+                withProperties("id","customerName");
+    	table.setWidth(50, Unit.PERCENTAGE);
+    	table.addBeans(getEntity().getCustomers());
+
+    	return new 
+    		MHorizontalLayout(new 	
+	    		MVerticalLayout(
+	                new FormLayout(
+	                        sourceName,
+	                        agentSourced,
+	                        sourceSectors,
+	                        sizeOfSourcePanel,
+	                        geographicalCriteriaLabel,
+	                        region,
+	                        postCodes,
+	                        typeofSourceProject,
+	                        solutions,
+	                        consultancy,
+	                        managedServices,
+	                        telecoms
+	                ),
+	                getToolbar()
+	    		)
+    		,table);
     }
 
     public SourceForm() {
@@ -220,7 +234,7 @@ public class SourceForm extends AbstractForm<Source> {
     private void showInWindow(String caption) {
         window = new Window(caption, this);
         window.setModal(true);
-        window.setWidth(50, Unit.PERCENTAGE);
+        window.setWidth(65, Unit.PERCENTAGE);
         window.setHeight(90, Unit.PERCENTAGE);
         window.setClosable(true);
         UI.getCurrent().addWindow(window);
@@ -236,14 +250,36 @@ public class SourceForm extends AbstractForm<Source> {
     
     
     private void showCustomerMatches(Source source) {
-        MTable<Customer> table = new MTable<>(Customer.class).
-                withProperties("id","customerName");
-        table.addBeans(service.getCustomerMatches(source));
+    	Collection<Customer>matches=service.getCustomerMatches(source);
+    	if (matches.size()>0) {
+        	MTable<Customer> table = new MTable<>(Customer.class).
+                    withProperties("id","customerName");
+            table.addBeans(service.getCustomerMatches(source));
+ 
+            table.addMValueChangeListener(event -> {
+                if (event.getValue() != null) {
+            		Notification note = new Notification("Source and Customer related",
+            			    "<br/>Customer: '"+event.getValue().getCustomerName()+"' has been attached to this Source?",
+            			    Notification.TYPE_TRAY_NOTIFICATION, true);
+            		note.setDelayMsec(500);
+            		note.show(Page.getCurrent());            
+            		getEntity().getCustomers().add(event.getValue());
+            		service.save(getEntity());
+                }
+            });
 
-        Window window = new Window("Customers Matched");
-    	window.setContent(table); 
-    	window.setModal(true);
-    	UI.getCurrent().addWindow(window);		
+            Window window = new Window("Customers Matched");
+        	window.setContent(table); 
+        	window.setModal(true);
+        	UI.getCurrent().addWindow(window);		    		
+    	} else {
+    		Notification note = new Notification("Customer Matches",
+    			    "<br/>There are no customer matches",
+    			    Notification.TYPE_TRAY_NOTIFICATION, true);
+    		note.setDelayMsec(500);
+    		note.show(Page.getCurrent());
+    	}
+    		
 	}
 
 	@Override

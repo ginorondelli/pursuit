@@ -236,7 +236,7 @@ public class CustomerForm extends AbstractForm<Customer> {
     private void showInWindow(String caption) {
         window = new Window(caption, this);
         window.setModal(true);
-        window.setWidth(50, Unit.PERCENTAGE);
+        window.setWidth(80, Unit.PERCENTAGE);
         window.setHeight(90, Unit.PERCENTAGE);
         window.setClosable(true);
         UI.getCurrent().addWindow(window);
