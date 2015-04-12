@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Customer;
 import org.vaadin.domain.PursuitMeta;
 import org.vaadin.domain.Source;
+import org.vaadin.maddon.BeanBinder;
 import org.vaadin.maddon.ListContainer;
 import org.vaadin.maddon.fields.MTable;
 import org.vaadin.maddon.fields.MTextField;
@@ -77,6 +78,7 @@ public class SourceForm extends AbstractForm<Source> {
     EventBus eventBus;
 
     private Window window;
+    private Window matchesWindow;
 
     @SuppressWarnings("serial")
 	@PostConstruct
@@ -249,7 +251,8 @@ public class SourceForm extends AbstractForm<Source> {
 
     
     
-    private void showCustomerMatches(Source source) {
+    @SuppressWarnings("deprecation")
+	private void showCustomerMatches(Source source) {
     	Collection<Customer>matches=service.getCustomerMatches(source);
     	if (matches.size()>0) {
         	MTable<Customer> table = new MTable<>(Customer.class).
@@ -263,15 +266,18 @@ public class SourceForm extends AbstractForm<Source> {
             			    Notification.TYPE_TRAY_NOTIFICATION, true);
             		note.setDelayMsec(500);
             		note.show(Page.getCurrent());            
-            		getEntity().getCustomers().add(event.getValue());
-            		service.save(getEntity());
+                    this.entity=service.getSource(entity.getId());
+            		this.entity.getCustomers().add(event.getValue());
+            		event.getValue().getSources().add(this.entity);
+            		service.save(this.entity);
+            		matchesWindow.close();
                 }
             });
 
-            Window window = new Window("Customers Matched");
-        	window.setContent(table); 
-        	window.setModal(true);
-        	UI.getCurrent().addWindow(window);		    		
+            matchesWindow = new Window("Customers Matched");
+            matchesWindow.setContent(table); 
+            matchesWindow.setModal(true);
+        	UI.getCurrent().addWindow(matchesWindow);		    		
     	} else {
     		Notification note = new Notification("Customer Matches",
     			    "<br/>There are no customer matches",

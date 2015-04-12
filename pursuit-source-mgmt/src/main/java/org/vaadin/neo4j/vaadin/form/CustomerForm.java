@@ -8,9 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Customer;
 import org.vaadin.domain.Project;
 import org.vaadin.domain.PursuitMeta;
+import org.vaadin.domain.Source;
 import org.vaadin.maddon.ListContainer;
+import org.vaadin.maddon.fields.MTable;
 import org.vaadin.maddon.fields.MTextField;
 import org.vaadin.maddon.form.AbstractForm;
+import org.vaadin.maddon.layouts.MHorizontalLayout;
 import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.controller.CustomerFormController;
@@ -191,25 +194,33 @@ public class CustomerForm extends AbstractForm<Customer> {
 	
     @Override
     protected Component createContent() {
-        return new MVerticalLayout(
-                new FormLayout(
-                        customerName,
-                        projectName,
-                        partnerType,
-                        crossOverExclusions,
-                        customerSectors,
-                        sizeOfCustomerPanel,
-                        geographicalCriteriaLabel,
-                        region,
-                        postCodes,
-                        typeofCustomerProject,
-                        solutions,
-                        consultancy,
-                        managedServices,
-                        telecoms
-                ),
-                getToolbar()
-        );
+
+    	MTable<Source> table = new MTable<>(Source.class).
+                withProperties("id","sourceName");
+    	table.setWidth(50, Unit.PERCENTAGE);
+    	table.addBeans(customer.getSources());
+
+    	return new MHorizontalLayout(
+    			new MVerticalLayout(
+    				new FormLayout(
+	                        customerName,
+	                        projectName,
+	                        partnerType,
+	                        crossOverExclusions,
+	                        customerSectors,
+	                        sizeOfCustomerPanel,
+	                        geographicalCriteriaLabel,
+	                        region,
+	                        postCodes,
+	                        typeofCustomerProject,
+	                        solutions,
+	                        consultancy,
+	                        managedServices,
+	                        telecoms
+	                ),
+	                getToolbar()
+	        ),table
+	        );
     }
 
     public CustomerForm() {
@@ -236,7 +247,7 @@ public class CustomerForm extends AbstractForm<Customer> {
     private void showInWindow(String caption) {
         window = new Window(caption, this);
         window.setModal(true);
-        window.setWidth(80, Unit.PERCENTAGE);
+        window.setWidth(65, Unit.PERCENTAGE);
         window.setHeight(90, Unit.PERCENTAGE);
         window.setClosable(true);
         UI.getCurrent().addWindow(window);

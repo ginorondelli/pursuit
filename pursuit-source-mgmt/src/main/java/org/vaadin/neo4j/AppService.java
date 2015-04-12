@@ -39,7 +39,10 @@ public class AppService {
     public List<Project> listAllProjects() {
         return projectRepository.findAll(new Sort("projectName")).as(ArrayList.class);
     }
-    
+
+    public Source getSource(Long id) {
+    	return sourceRepository.findById(id);
+    }
     public Set<Customer> getCustomerMatches(Source source) {
     	Source reAttached = sourceRepository.findById(source.getId());
     	Set<Customer>matches=new HashSet<Customer>();

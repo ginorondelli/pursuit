@@ -47,7 +47,7 @@ class MainUI extends UI implements ErrorHandler{
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
-    	//VaadinSession.getCurrent().setErrorHandler(this);
+    	VaadinSession.getCurrent().setErrorHandler(this);
 //        TabSheet tabSheet = new TabSheet(sourceView, customerView, personView, projectView);
         TabSheet tabSheet = new TabSheet(sourceView, customerView, projectView, personView);
         tabSheet.setSizeFull();
