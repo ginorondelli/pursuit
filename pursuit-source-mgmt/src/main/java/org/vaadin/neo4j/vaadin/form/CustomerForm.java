@@ -10,6 +10,7 @@ import org.vaadin.domain.Project;
 import org.vaadin.domain.PursuitMeta;
 import org.vaadin.domain.Source;
 import org.vaadin.maddon.ListContainer;
+import org.vaadin.maddon.MBeanFieldGroup;
 import org.vaadin.maddon.fields.MTable;
 import org.vaadin.maddon.fields.MTextField;
 import org.vaadin.maddon.form.AbstractForm;
@@ -35,6 +36,8 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 
 @UIScope
 @VaadinComponent
@@ -198,7 +201,30 @@ public class CustomerForm extends AbstractForm<Customer> {
     	MTable<Source> table = new MTable<>(Source.class).
                 withProperties("id","sourceName");
     	table.setWidth(50, Unit.PERCENTAGE);
-    	table.addBeans(customer.getSources());
+    	table.setColumnHeader("id","ID");
+    	table.setColumnHeader("sourceName","Source");
+    	
+    	if (null!=customer.getCustomerName()) {
+    		table.addBeans(customer.getSources());
+    	}
+
+    	table.addGeneratedColumn("Remove", 
+    		      new Table.ColumnGenerator() {
+    		        public Object generateCell(
+    		          Table source,final Object itemId,Object columnId){
+    		            Button removeButton = new Button("x");
+    		            removeButton.addClickListener(new ClickListener(){
+    		              public void buttonClick(ClickEvent event) {
+    		                if (null!=itemId) {
+      		            	  table.removeItem(itemId);
+      		            	  customer.getSources().remove(itemId);
+    		                }
+    		             }
+    		          });
+    		          return removeButton;
+    		        }
+    		      });
+
 
     	return new MHorizontalLayout(
     			new MVerticalLayout(
@@ -227,7 +253,7 @@ public class CustomerForm extends AbstractForm<Customer> {
     }
 
     @Override
-    public void setEntity(Customer entity) {
+    public MBeanFieldGroup<Customer> setEntity(Customer entity) {
         super.setEntity(entity);
         this.customer=entity;
         List<Customer>customers=null;
@@ -240,7 +266,10 @@ public class CustomerForm extends AbstractForm<Customer> {
          	customers=service.listAllCustomers();
         }
         crossOverExclusions.setContainerDataSource(
-                new ListContainer<Customer>(Customer.class, customers));        
+                new ListContainer<Customer>(Customer.class, customers)); 
+
+        return new MBeanFieldGroup<Customer>(Customer.class);
+
        
     }
 

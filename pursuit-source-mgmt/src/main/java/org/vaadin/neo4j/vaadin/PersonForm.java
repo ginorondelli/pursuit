@@ -7,12 +7,17 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
+
 import java.util.Collections;
+
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Person;
 import org.vaadin.domain.Project;
+import org.vaadin.domain.Source;
 import org.vaadin.maddon.ListContainer;
+import org.vaadin.maddon.MBeanFieldGroup;
 import org.vaadin.maddon.fields.MTextField;
 import org.vaadin.maddon.form.AbstractForm;
 import org.vaadin.maddon.layouts.MVerticalLayout;
@@ -100,9 +105,11 @@ public class PersonForm extends AbstractForm<Person> {
     }
 
     @Override
-    public void setEntity(Person entity) {
+    public MBeanFieldGroup<Person> setEntity(Person entity) {
         super.setEntity(entity);
         showInWindow();
+        return new MBeanFieldGroup<Person>(Person.class);
+
     }
 
     private void showInWindow() {

@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Customer;
 import org.vaadin.domain.PursuitMeta;
 import org.vaadin.domain.Source;
-import org.vaadin.maddon.BeanBinder;
 import org.vaadin.maddon.ListContainer;
+import org.vaadin.maddon.MBeanFieldGroup;
 import org.vaadin.maddon.fields.MTable;
 import org.vaadin.maddon.fields.MTextField;
 import org.vaadin.maddon.form.AbstractForm;
@@ -25,14 +25,16 @@ import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBusListener;
 
 import com.vaadin.server.Page;
-import com.vaadin.shared.Position;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.UI;
@@ -194,8 +196,30 @@ public class SourceForm extends AbstractForm<Source> {
     	MTable<Customer> table = new MTable<>(Customer.class).
                 withProperties("id","customerName");
     	table.setWidth(50, Unit.PERCENTAGE);
-    	table.addBeans(getEntity().getCustomers());
+    	table.setImmediate(true);
+    	table.setColumnHeader("id","ID");
+    	table.setColumnHeader("customerName","Customer");
+    	if (null!=entity.getSourceName()) {
+    		table.addBeans(getEntity().getCustomers());
+    	}
 
+    	table.addGeneratedColumn("Remove", 
+    		      new Table.ColumnGenerator() {
+    		        public Object generateCell(
+    		          Table source,final Object itemId,Object columnId){
+    		            Button removeButton = new Button("x");
+    		            removeButton.addClickListener(new ClickListener(){
+    		              public void buttonClick(ClickEvent event) {
+    		                if (null!=itemId) {
+      		            	  table.removeItem(itemId);
+      		            	  getEntity().getCustomers().remove(itemId);
+    		                }
+    		             }
+    		          });
+    		          return removeButton;
+    		        }
+    		      });
+    	
     	return new 
     		MHorizontalLayout(new 	
 	    		MVerticalLayout(
@@ -222,7 +246,7 @@ public class SourceForm extends AbstractForm<Source> {
     }
 
     @Override
-    public void setEntity(Source entity) {
+    public MBeanFieldGroup<Source> setEntity(Source entity) {
         super.setEntity(entity);
     	this.entity=entity;
         if (null!=entity.getSourceName()) {
@@ -230,7 +254,7 @@ public class SourceForm extends AbstractForm<Source> {
         } else {
         	 showInWindow("Create new Source");
         }
-       
+       return new MBeanFieldGroup<Source>(Source.class);
     }
 
     private void showInWindow(String caption) {
@@ -258,7 +282,6 @@ public class SourceForm extends AbstractForm<Source> {
         	MTable<Customer> table = new MTable<>(Customer.class).
                     withProperties("id","customerName");
             table.addBeans(service.getCustomerMatches(source));
- 
             table.addMValueChangeListener(event -> {
                 if (event.getValue() != null) {
             		Notification note = new Notification("Source and Customer related",
