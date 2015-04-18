@@ -11,6 +11,10 @@ public class PursuitMeta {
 		return new LinkedHashSet<String>(Arrays.asList(agents));
 	}
 	
+	public static LinkedHashSet<String>allStatus() {
+		String[] status={"Pending", "Closed", "Dead"};
+		return new LinkedHashSet<String>(Arrays.asList(status));
+	}
 	
 	public static LinkedHashSet<String> allSourceSectors() {
 		String[]sectorsArr={"Manufacturing",

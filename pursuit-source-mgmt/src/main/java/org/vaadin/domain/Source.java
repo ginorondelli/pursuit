@@ -8,6 +8,7 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.RelatedToVia;
 import org.vaadin.neo4j.Utils;
 @NodeEntity
 public class Source extends AbstractPositionableEntity implements Serializable {
@@ -19,12 +20,16 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	
 
 	private String sourceName;
-	private String agentSourced;
+	private Person agentSourced;
+	private Person agentAssigned;
 
-    @RelatedTo(type = "CUSTOMER", direction = Direction.BOTH)
+    @RelatedTo(type = "SOURCE", direction = Direction.BOTH)
     @Fetch
     public Set<Customer> customers;
-	
+
+    @Fetch @RelatedToVia(type="CUSTOMER_SOURCE", direction = Direction.BOTH)
+    Set <CustomerSourceStatus> customerSources;
+    
 	private LinkedHashSet<String>sourceSectors; 
 	
 	//Size of source
@@ -39,7 +44,12 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	private Set<String> consultancy;
 	private Set<String> managedServices;
 	private Set<String> telecoms;
-	
+
+    public CustomerSourceStatus customerSource(Customer customer, String status) {
+    	CustomerSourceStatus customerSource = new CustomerSourceStatus(customer, this, status);
+    	customerSources.add(customerSource);
+    	return customerSource;
+    }
 	
 	public Set<String> getSourceSectors() {
 		return sourceSectors;
@@ -78,13 +88,23 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	public void setSourceName(String sourceName) {
 		this.sourceName = sourceName;
 	}
-	public String getAgentSourced() {
+
+	public Person getAgentSourced() {
 		return agentSourced;
 	}
-	public void setAgentSourced(String agentSourced) {
+
+	public void setAgentSourced(Person agentSourced) {
 		this.agentSourced = agentSourced;
 	}
-	
+
+	public Person getAgentAssigned() {
+		return agentAssigned;
+	}
+
+	public void setAgentAssigned(Person agentAssigned) {
+		this.agentAssigned = agentAssigned;
+	}
+
 	public Set<String> getSolutions() {
 		return solutions;
 	}
@@ -115,6 +135,13 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	}
 	public void setCustomers(Set<Customer> customers) {
 		this.customers = customers;
+	}
+	
+	public Set<CustomerSourceStatus> getCustomerSources() {
+		return customerSources;
+	}
+	public void setCustomerSources(Set<CustomerSourceStatus> customerSources) {
+		this.customerSources = customerSources;
 	}
 	/** 
 	 * Contains the algorithm for matching this Source with a given Customer

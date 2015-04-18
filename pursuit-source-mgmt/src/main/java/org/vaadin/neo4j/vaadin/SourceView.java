@@ -39,7 +39,7 @@ class SourceView extends MVerticalLayout {
     EventBus eventBus;
 
     MTable<Source> listing = new MTable<>(Source.class).
-            withProperties("id","sourceName", "agentSourced");
+            withProperties("id","sourceName", "agentSourced", "agentAssigned");
 
     Button addNew = new MButton(FontAwesome.PLUS, e->{
     	sourceForm.setEntity(new Source());
@@ -62,6 +62,7 @@ class SourceView extends MVerticalLayout {
         listing.setColumnHeader("id", "ID");
         listing.setColumnHeader("sourceName", "Source Name");
         listing.setColumnHeader("agentSourced", "Agent Sourced");
+        listing.setColumnHeader("agentAssigned", "Agent Assigned");
         addComponents(
         		buttonContainer,
                 listing

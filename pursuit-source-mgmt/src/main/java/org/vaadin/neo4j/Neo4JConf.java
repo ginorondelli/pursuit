@@ -30,7 +30,7 @@ import org.vaadin.neo4j.repository.SourceRepository;
 @EnableTransactionManagement
 public class Neo4JConf extends Neo4jConfiguration {
 
-    private static final String DBNAME = System.getProperty("user.home") + "/pursuit.db";
+    private static final String DBNAME = System.getProperty("user.home") + "/pursuit1.db";
 
     public Neo4JConf() {
         setBasePackage("org.vaadin.domain");
@@ -71,11 +71,11 @@ public class Neo4JConf extends Neo4jConfiguration {
      */
     @PostConstruct
     public void initData() {
-        Person greg = new Person("Greg", 50, 50,"Greg Agent");
+        Person greg = new Person("Greg", 50, 50);
         //greg.setAgentSourced("Greg agent");
-        Person roy = new Person("Roy", 50, 150, "Roy agent");
+        Person roy = new Person("Roy", 50, 150);
         //roy.setAgentSourced("Roy agent");
-        Person craig = new Person("Craig", 50, 250, "Craig agent");
+        Person craig = new Person("Craig", 50, 250);
         //craig.setAgentSourced("Graig agent");
         
         Project maintenance = new Project("Maintenance", 450, 100);

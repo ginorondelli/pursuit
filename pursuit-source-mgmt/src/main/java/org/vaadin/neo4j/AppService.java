@@ -10,10 +10,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.vaadin.domain.Customer;
+import org.vaadin.domain.CustomerSourceStatus;
 import org.vaadin.domain.Person;
 import org.vaadin.domain.Project;
 import org.vaadin.domain.Source;
 import org.vaadin.neo4j.repository.CustomerRepository;
+import org.vaadin.neo4j.repository.CustomerSourceStatusRepository;
 import org.vaadin.neo4j.repository.SourceRepository;
 
 @Service
@@ -31,7 +33,14 @@ public class AppService {
     
     @Autowired
     CustomerRepository customerRepository;
+    
+    @Autowired
+    CustomerSourceStatusRepository customerSourceRepository;
 
+    public Person getUserByUserName(String userName) {
+    	return personRepository.findByUserName(userName);
+    }
+    
     public List<Person> allAsList() {
         return personRepository.findAll(new Sort("name")).as(ArrayList.class);
     }
@@ -42,6 +51,9 @@ public class AppService {
 
     public Source getSource(Long id) {
     	return sourceRepository.findById(id);
+    }
+    public Customer getCustomer(Long id) {
+    	return customerRepository.findById(id);
     }
     public Set<Customer> getCustomerMatches(Source source) {
     	Source reAttached = sourceRepository.findById(source.getId());
@@ -60,15 +72,18 @@ public class AppService {
         personRepository.save(entity);
     }
     
-    public void save(Source entity) {
-        sourceRepository.save(entity);
+    public Source save(Source entity) {
+        return sourceRepository.save(entity);
     }
     
-    public void save(Customer entity) {
-        customerRepository.save(entity);
+    public Customer save(Customer entity) {
+        return customerRepository.save(entity);
     }
     
-      
+    public CustomerSourceStatus save(CustomerSourceStatus entity) {
+        return customerSourceRepository.save(entity);
+    }
+          
     public List<Source> listAllSources() {
     	return sourceRepository.findAll(new Sort("sourceName")).as(ArrayList.class);
     }

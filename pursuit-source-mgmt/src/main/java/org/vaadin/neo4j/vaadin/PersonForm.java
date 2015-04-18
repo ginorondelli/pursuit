@@ -1,22 +1,10 @@
 package org.vaadin.neo4j.vaadin;
 
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.Window;
-
-import java.util.Collections;
-
 import javax.annotation.PostConstruct;
 
+import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Person;
-import org.vaadin.domain.Project;
-import org.vaadin.domain.Source;
-import org.vaadin.maddon.ListContainer;
 import org.vaadin.maddon.MBeanFieldGroup;
 import org.vaadin.maddon.fields.MTextField;
 import org.vaadin.maddon.form.AbstractForm;
@@ -28,6 +16,14 @@ import org.vaadin.spring.VaadinComponent;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBusListener;
 
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.Window;
+
 @UIScope
 @VaadinComponent
 public class PersonForm extends AbstractForm<Person> {
@@ -38,14 +34,9 @@ public class PersonForm extends AbstractForm<Person> {
 	private static final long serialVersionUID = 5430540403488763556L;
 
 	TextField name = new MTextField("Name");
-
-    TextField x = new MTextField("x");
-
-    TextField y = new MTextField("y");
-
-    TextField agentSourced = new MTextField("Agent Sourced");
-
-    Table projects = new Table("Projects");
+	TextField userName = new MTextField("User Name");
+	PasswordField passWord = new PasswordField("Password");
+ 
 
     @Autowired
     PersonFormController personFormController;
@@ -64,27 +55,14 @@ public class PersonForm extends AbstractForm<Person> {
         setSavedHandler(personFormController);
         setResetHandler(personFormController);
 
-        projects.setMultiSelect(true);
-        projects.setSelectable(true);
-        projects.setPageLength(6);
-
-        populateProjects();
-
-        eventBus.subscribe(new EventBusListener<ProjectsModified>() {
+           eventBus.subscribe(new EventBusListener<ProjectsModified>() {
 
             @Override
             public void onEvent(
                     org.vaadin.spring.events.Event<ProjectsModified> event) {
-                populateProjects();
             }
         });
 
-    }
-
-    private void populateProjects() {
-        projects.setContainerDataSource(
-                new ListContainer(Project.class, service.listAllProjects()),
-                Collections.singletonList("name"));
     }
 
     @Override
@@ -92,10 +70,8 @@ public class PersonForm extends AbstractForm<Person> {
         return new MVerticalLayout(
                 new FormLayout(
                         name,
-                        x,
-                        y,
-                        agentSourced,
-                        projects
+                        userName,
+                        passWord
                 ),
                 getToolbar()
         );
@@ -121,7 +97,7 @@ public class PersonForm extends AbstractForm<Person> {
 
     @Override
     protected void save(Button.ClickEvent e) {
-        super.save(e);
+    	super.save(e);
         window.close();
     }
 

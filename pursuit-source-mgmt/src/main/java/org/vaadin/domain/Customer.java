@@ -9,6 +9,7 @@ import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.RelatedToVia;
 import org.vaadin.neo4j.Utils;
 
 @NodeEntity
@@ -45,7 +46,17 @@ public class Customer extends AbstractPositionableEntity implements Serializable
     @RelatedTo(type = "SOURCE", direction = Direction.BOTH)
     @Fetch
     public Set<Source> sources;
+    
+    @Fetch @RelatedToVia(type="CUSTOMER_SOURCE", direction = Direction.BOTH)
+    Set <CustomerSourceStatus> customerSources;
+    
 
+    public CustomerSourceStatus customerSource(Source source, String status) {
+    	CustomerSourceStatus customerSource = new CustomerSourceStatus(this, source, status);
+    	customerSources.add(customerSource);
+    	return customerSource;
+    }
+    
 	public String getCustomerName() {
 		return customerName;
 	}
@@ -137,6 +148,13 @@ public class Customer extends AbstractPositionableEntity implements Serializable
 	}
 	public void setSources(Set<Source> sources) {
 		this.sources = sources;
+	}
+	
+	public Set<CustomerSourceStatus> getCustomerSources() {
+		return customerSources;
+	}
+	public void setCustomerSources(Set<CustomerSourceStatus> customerSources) {
+		this.customerSources = customerSources;
 	}
 	@Override
 	public String toString() {

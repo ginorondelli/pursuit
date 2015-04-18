@@ -1,6 +1,7 @@
 package org.vaadin.neo4j.vaadin;
 
 import org.vaadin.neo4j.vaadin.events.PersonsModified;
+import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vaadin.domain.Person;
@@ -17,14 +18,16 @@ public class PersonFormController implements SavedHandler<Person>,
         AbstractForm.ResetHandler<Person> {
 
     @Autowired
-    AppService personService;
+    AppService appService;
 
     @Autowired
     EventBus eventBus;
 
     @Override
     public void onSave(Person entity) {
-        personService.save(entity);
+    	StrongPasswordEncryptor passwordEncryptor = new StrongPasswordEncryptor();
+    	entity.setPassWord(passwordEncryptor.encryptPassword(entity.getPassWord()));
+    	appService.save(entity);
         eventBus.publish(EventScope.UI, this, new PersonsModified());
     }
 

@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Customer;
+import org.vaadin.domain.CustomerSourceStatus;
 import org.vaadin.domain.Project;
 import org.vaadin.domain.PursuitMeta;
 import org.vaadin.domain.Source;
@@ -24,6 +25,8 @@ import org.vaadin.spring.VaadinComponent;
 import org.vaadin.spring.events.EventBus;
 import org.vaadin.spring.events.EventBusListener;
 
+import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -73,6 +76,8 @@ public class CustomerForm extends AbstractForm<Customer> {
     Customer customer;
 
     Table Customerd = new Table("Customers");
+    Table customerSourcesTable;
+    
 
     @Autowired
     CustomerFormController CustomerFormController;
@@ -123,9 +128,6 @@ public class CustomerForm extends AbstractForm<Customer> {
         
         setSavedHandler(CustomerFormController);
         setResetHandler(CustomerFormController);
-
-        //agentCustomerd.setMultiSelect(true);
-        //agentCustomerd.setSelectable(true);
 
         populateMeta();
 
@@ -194,36 +196,59 @@ public class CustomerForm extends AbstractForm<Customer> {
     	telecoms.setContainerDataSource(
     			new ListContainer<String>(String.class,PursuitMeta.allTelecoms()));
 	}
+
+	private void refreshCustomerSourcesTable() {
+		if (null!=customer.getCustomerSources()&&customer.getCustomerSources().size()>0) {
+			service.getCustomer(customer.getId()).getCustomerSources().forEach((customerSource)-> {customerSourcesTable.addItem(customerSource);});
+		}
+	}	
 	
     @Override
     protected Component createContent() {
 
-    	MTable<Source> table = new MTable<>(Source.class).
-                withProperties("id","sourceName");
-    	table.setWidth(50, Unit.PERCENTAGE);
-    	table.setColumnHeader("id","ID");
-    	table.setColumnHeader("sourceName","Source");
+    	BeanItemContainer<CustomerSourceStatus> customerSourcesContainer =
+    		    new BeanItemContainer<CustomerSourceStatus>(CustomerSourceStatus.class);
+    	customerSourcesContainer.addNestedContainerProperty("source.id");
+    	customerSourcesContainer.addNestedContainerProperty("source.sourceName");
     	
+    	customerSourcesTable = new Table("CustomerSources",customerSourcesContainer);
+    	customerSourcesTable.setWidth(70, Unit.PERCENTAGE);
+    	customerSourcesTable.setImmediate(true);
+    	customerSourcesTable.setColumnHeader("source.id","ID");
+    	customerSourcesTable.setColumnHeader("source.sourceName","Source");
+    	customerSourcesTable.setColumnHeader("status","Status");
+    	customerSourcesTable.setVisibleColumns("source.id","source.sourceName", "status");
     	if (null!=customer.getCustomerName()) {
-    		table.addBeans(customer.getSources());
+    		refreshCustomerSourcesTable();
     	}
 
-    	table.addGeneratedColumn("Remove", 
-    		      new Table.ColumnGenerator() {
-    		        public Object generateCell(
-    		          Table source,final Object itemId,Object columnId){
-    		            Button removeButton = new Button("x");
-    		            removeButton.addClickListener(new ClickListener(){
-    		              public void buttonClick(ClickEvent event) {
-    		                if (null!=itemId) {
-      		            	  table.removeItem(itemId);
-      		            	  customer.getSources().remove(itemId);
-    		                }
-    		             }
-    		          });
-    		          return removeButton;
-    		        }
-    		      });
+    	
+//    	MTable<CustomerSourceStatus> table = new MTable<>(CustomerSourceStatus.class).
+//                withProperties("id","sourceName");
+//    	table.setWidth(50, Unit.PERCENTAGE);
+//    	table.setColumnHeader("id","ID");
+//    	table.setColumnHeader("sourceName","Source");
+//    	
+//    	if (null!=customer.getCustomerName()) {
+//    		table.addBeans(customer.getCustomerSources());
+//    	}
+
+//    	table.addGeneratedColumn("Remove", 
+//    		      new Table.ColumnGenerator() {
+//    		        public Object generateCell(
+//    		          Table source,final Object itemId,Object columnId){
+//    		            Button removeButton = new Button("x");
+//    		            removeButton.addClickListener(new ClickListener(){
+//    		              public void buttonClick(ClickEvent event) {
+//    		                if (null!=itemId) {
+//      		            	  table.removeItem(itemId);
+//      		            	  customer.getSources().remove(itemId);
+//    		                }
+//    		             }
+//    		          });
+//    		          return removeButton;
+//    		        }
+//    		      });
 
 
     	return new MHorizontalLayout(
@@ -245,7 +270,7 @@ public class CustomerForm extends AbstractForm<Customer> {
 	                        telecoms
 	                ),
 	                getToolbar()
-	        ),table
+	        ),customerSourcesTable
 	        );
     }
 
@@ -269,14 +294,13 @@ public class CustomerForm extends AbstractForm<Customer> {
                 new ListContainer<Customer>(Customer.class, customers)); 
 
         return new MBeanFieldGroup<Customer>(Customer.class);
-
-       
     }
+
 
     private void showInWindow(String caption) {
         window = new Window(caption, this);
         window.setModal(true);
-        window.setWidth(65, Unit.PERCENTAGE);
+        window.setWidth(80, Unit.PERCENTAGE);
         window.setHeight(90, Unit.PERCENTAGE);
         window.setClosable(true);
         UI.getCurrent().addWindow(window);

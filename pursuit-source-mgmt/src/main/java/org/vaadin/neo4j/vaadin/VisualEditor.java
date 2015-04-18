@@ -39,7 +39,7 @@ class VisualEditor extends MVerticalLayout {
     ProjectRepository projectRepository;
 
     @Autowired
-    AppService personService;
+    AppService appService;
 
     @Autowired
     GraphDatabaseService graphDatabase;
@@ -105,7 +105,7 @@ class VisualEditor extends MVerticalLayout {
         ArrayList<Node> nodes = new ArrayList<>();
         ArrayList<Transition> transitions = new ArrayList<>();
 
-        List<Project> projects = personService.listAllProjects();
+        List<Project> projects = appService.listAllProjects();
         for (Project project : projects) {
             nodes.add(new Node(project.getName(), "task", project.
                     getX(),
@@ -113,7 +113,7 @@ class VisualEditor extends MVerticalLayout {
 
         }
 
-        List<Person> allAsList = personService.allAsList();
+        List<Person> allAsList = appService.allAsList();
 
         for (Person person : allAsList) {
             nodes.add(new Node(person.getName(), "state", person.
@@ -153,7 +153,7 @@ class VisualEditor extends MVerticalLayout {
                 } else {
                     Person person = new Person(node.getName(), node.getX(),
                             node.
-                            getY(), null);
+                            getY());
                     personRepository.save(person);
                 }
             }
