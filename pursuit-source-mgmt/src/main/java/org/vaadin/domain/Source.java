@@ -20,12 +20,10 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	
 
 	private String sourceName;
+	@Fetch
 	private Person agentSourced;
+	@Fetch
 	private Person agentAssigned;
-
-    @RelatedTo(type = "SOURCE", direction = Direction.BOTH)
-    @Fetch
-    public Set<Customer> customers;
 
     @Fetch @RelatedToVia(type="CUSTOMER_SOURCE", direction = Direction.BOTH)
     Set <CustomerSourceStatus> customerSources;
@@ -128,13 +126,6 @@ public class Source extends AbstractPositionableEntity implements Serializable {
 	}
 	public void setTelecoms(Set<String> telecoms) {
 		this.telecoms = telecoms;
-	}
-
-	public Set<Customer> getCustomers() {
-		return customers;
-	}
-	public void setCustomers(Set<Customer> customers) {
-		this.customers = customers;
 	}
 	
 	public Set<CustomerSourceStatus> getCustomerSources() {

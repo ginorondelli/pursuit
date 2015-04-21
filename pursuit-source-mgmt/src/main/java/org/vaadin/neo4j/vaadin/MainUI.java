@@ -7,6 +7,7 @@ import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.vaadin.authentication.BasicAccessControl;
 import org.vaadin.neo4j.vaadin.authentication.LoginScreen;
 import org.vaadin.neo4j.vaadin.authentication.LoginScreen.LoginListener;
+import org.vaadin.neo4j.vaadin.authentication.LoginView;
 import org.vaadin.spring.VaadinUI;
 
 import com.vaadin.annotations.JavaScript;
@@ -60,7 +61,8 @@ class MainUI extends UI implements ErrorHandler{
    	VaadinSession.getCurrent().setErrorHandler(this);
    	UI.getCurrent().setErrorHandler(this);
     if (!accessControl.isUserSignedIn()) {
-        setContent(new LoginScreen(accessControl, new LoginListener() {
+        setSizeFull();
+    	setContent(new LoginScreen(accessControl, new LoginListener() {
             @Override
             public void loginSuccessful() {
             	showLoggedIn();

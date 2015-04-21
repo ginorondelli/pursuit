@@ -23,6 +23,7 @@ public class Customer extends AbstractPositionableEntity implements Serializable
 
 	private String customerName;
 	
+	@Fetch
 	private Project project;
 	
 	private String partnerType;
@@ -43,10 +44,6 @@ public class Customer extends AbstractPositionableEntity implements Serializable
 	private Set<String> managedServices;
 	private Set<String> telecoms;
 	
-    @RelatedTo(type = "SOURCE", direction = Direction.BOTH)
-    @Fetch
-    public Set<Source> sources;
-    
     @Fetch @RelatedToVia(type="CUSTOMER_SOURCE", direction = Direction.BOTH)
     Set <CustomerSourceStatus> customerSources;
     
@@ -141,13 +138,6 @@ public class Customer extends AbstractPositionableEntity implements Serializable
 	}
 	public void setTelecoms(Set<String> telecoms) {
 		this.telecoms = telecoms;
-	}
-	
-	public Set<Source> getSources() {
-		return sources;
-	}
-	public void setSources(Set<Source> sources) {
-		this.sources = sources;
 	}
 	
 	public Set<CustomerSourceStatus> getCustomerSources() {

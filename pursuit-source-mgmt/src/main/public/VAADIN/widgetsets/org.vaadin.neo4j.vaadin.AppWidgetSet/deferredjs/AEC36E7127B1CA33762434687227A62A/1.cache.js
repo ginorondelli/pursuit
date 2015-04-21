@@ -1,1 +1,0 @@
-$wnd.org_vaadin_neo4j_vaadin_AppWidgetSet.runAsyncCallback1('function jWc(a){kWc()}\nfunction kWc(){lWc()}\nfunction lWc(){}\noxb(824,1,yUe);_.Rc=function oWc(){jWc(this);ZFc(_Fc(),zFc(this.b))};sHe(tn)(1);\n//# sourceURL=org.vaadin.neo4j.vaadin.AppWidgetSet-1.js\n')

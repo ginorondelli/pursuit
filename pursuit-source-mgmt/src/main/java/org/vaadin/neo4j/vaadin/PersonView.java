@@ -41,7 +41,7 @@ class PersonView extends MVerticalLayout {
     EventBus eventBus;
 
     MTable<Person> listing = new MTable<>(Person.class).
-            withProperties("name", "userName","passWord");
+            withProperties("name", "userName");
 
     Button addNew = new MButton(FontAwesome.PLUS, e->{
     	personForm.setEntity(new Person());
@@ -52,7 +52,7 @@ class PersonView extends MVerticalLayout {
         buttonContainer.setWidth(100, Unit.PERCENTAGE);
     	addNew.setCaption("Add new User");
         buttonContainer.add(addNew);
-        listing.setColumnHeaders("Name","User name", "Password");
+        listing.setColumnHeaders("Name","User name");
         setCaption("Users");
         listing.addMValueChangeListener(event -> {
             if (event.getValue() != null) {

@@ -144,8 +144,9 @@ public class SourceForm extends AbstractForm<Source> {
 			@Override
             public void onEvent(
                     org.vaadin.spring.events.Event<CustomersModified> event) {
-				customerSourcesTable.removeAllItems();
-				refreshCustomerSourcesTable();
+				if (null!=entity&&null!=entity.getSourceName()) {
+					refreshCustomerSourcesTable();
+				}
             }
         });
 
@@ -208,12 +209,6 @@ public class SourceForm extends AbstractForm<Source> {
 	}
 	
 	private void refreshCustomerSourcesTable() {
-		service.getSource(getEntity().getId()).getCustomerSources().forEach((customerSource)-> {customerSourcesTable.addItem(customerSource);});
-	}
-	
-    @Override
-    protected Component createContent() {
-
     	BeanItemContainer<CustomerSourceStatus> customerSourcesContainer =
     		    new BeanItemContainer<CustomerSourceStatus>(CustomerSourceStatus.class);
     	customerSourcesContainer.addNestedContainerProperty("customer.id");
@@ -226,6 +221,17 @@ public class SourceForm extends AbstractForm<Source> {
     	customerSourcesTable.setColumnHeader("customer.customerName","Customer");
     	customerSourcesTable.setColumnHeader("status","Status");
     	customerSourcesTable.setVisibleColumns("customer.id","customer.customerName", "status");
+		customerSourcesTable.removeAllItems();
+    	service.getSource(entity.getId()).getCustomerSources()
+				.forEach((customerSource) -> {
+					customerSourcesTable.addItem(customerSource);
+				});
+	}
+	
+    @Override
+    protected Component createContent() {
+
+
     	if (null!=entity.getSourceName()) {
     		refreshCustomerSourcesTable();
     	}

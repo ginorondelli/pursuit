@@ -52,7 +52,7 @@ public class CustomerForm extends AbstractForm<Customer> {
 	private static final long serialVersionUID = 1L;
 
 	TextField customerName = new MTextField("Customer Name");
-	ComboBox projectName = new ComboBox("Project Name");
+	ComboBox project = new ComboBox("Project Name");
     
 	ComboBox partnerType = new ComboBox("Partner Type");
 	TwinColSelect crossOverExclusions = new TwinColSelect("Crossover Exclusions");
@@ -173,7 +173,7 @@ public class CustomerForm extends AbstractForm<Customer> {
 	}
 
 	private void populateMeta() {
-        projectName.setContainerDataSource(
+        project.setContainerDataSource(
                 new ListContainer<Project>(Project.class, service.listAllProjects()));
         partnerType.setContainerDataSource(
                 new ListContainer<String>(String.class, PursuitMeta.allPartnerTypes()));
@@ -255,7 +255,7 @@ public class CustomerForm extends AbstractForm<Customer> {
     			new MVerticalLayout(
     				new FormLayout(
 	                        customerName,
-	                        projectName,
+	                        project,
 	                        partnerType,
 	                        crossOverExclusions,
 	                        customerSectors,
