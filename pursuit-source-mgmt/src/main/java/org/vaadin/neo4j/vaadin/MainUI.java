@@ -7,7 +7,6 @@ import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.vaadin.authentication.BasicAccessControl;
 import org.vaadin.neo4j.vaadin.authentication.LoginScreen;
 import org.vaadin.neo4j.vaadin.authentication.LoginScreen.LoginListener;
-import org.vaadin.neo4j.vaadin.authentication.LoginView;
 import org.vaadin.spring.VaadinUI;
 
 import com.vaadin.annotations.JavaScript;
