@@ -29,8 +29,9 @@ import org.vaadin.neo4j.repository.SourceRepository;
 @EnableNeo4jRepositories("org.vaadin.neo4j")
 @EnableTransactionManagement
 public class Neo4JConf extends Neo4jConfiguration {
-
-    private static final String DBNAME = System.getProperty("user.home") + "/pursuit1.db";
+//	
+  private static final String DBNAME = "/home/tomcat/pursuit1.db";
+//  private static final String DBNAME = System.getProperty("user.home") + "/pursuit1.db";
 
     public Neo4JConf() {
         setBasePackage("org.vaadin.domain");
