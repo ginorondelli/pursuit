@@ -8,13 +8,23 @@
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{5} - %msg%n</pattern>
 		</encoder>
 	</appender>
+	 <appender name="LOGFILE" class="ch.qos.logback.core.FileAppender">
+	 <file>${catalina.base}/logs/source-manager-error.log</file>
+	    <encoder>
+	      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+	    </encoder>
+	    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>ERROR</level>
+    </filter>
+	  </appender>
 
 	<logger name="com.javacodegeeks.examples.logbackexample.beans" level="INFO" additivity="false">
             <appender-ref ref="STDOUT" />
 	</logger>
 
-	<!-- By default, the level of the root level is set to DEBUG -->
+	<!-- By default, the level of the root level is set to INFO -->
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
+		<appender-ref ref="LOGFILE" />		
 	</root>
 </configuration>
