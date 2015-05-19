@@ -2,20 +2,17 @@ package org.vaadin.neo4j.vaadin;
 
 import javax.annotation.PostConstruct;
 
-import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Person;
-import org.vaadin.maddon.MBeanFieldGroup;
-import org.vaadin.maddon.fields.MTextField;
-import org.vaadin.maddon.form.AbstractForm;
-import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
+import org.vaadin.neo4j.vaadin.events.PersonsChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.ProjectsModified;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.VaadinComponent;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBusListener;
+import org.vaadin.viritin.MBeanFieldGroup;
+import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -24,8 +21,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
+
+@org.springframework.stereotype.Component
 @UIScope
-@VaadinComponent
 public class PersonForm extends AbstractForm<Person> {
 
     /**
@@ -45,7 +43,7 @@ public class PersonForm extends AbstractForm<Person> {
     AppService service;
 
     @Autowired
-    EventBus eventBus;
+    PersonsChangedNotifier eventBus;
 
     private Window window;
 
@@ -55,13 +53,13 @@ public class PersonForm extends AbstractForm<Person> {
         setSavedHandler(personFormController);
         setResetHandler(personFormController);
 
-           eventBus.subscribe(new EventBusListener<ProjectsModified>() {
-
-            @Override
-            public void onEvent(
-                    org.vaadin.spring.events.Event<ProjectsModified> event) {
-            }
-        });
+//           eventBus.subscribe(new EventBusListener<ProjectsModified>() {
+//
+//            @Override
+//            public void onEvent(
+//                    org.vaadin.spring.events.Event<ProjectsModified> event) {
+//            }
+//        });
 
     }
 

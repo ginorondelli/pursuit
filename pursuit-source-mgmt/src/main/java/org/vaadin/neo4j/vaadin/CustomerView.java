@@ -5,22 +5,22 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vaadin.domain.Customer;
-import org.vaadin.maddon.button.MButton;
-import org.vaadin.maddon.fields.MTable;
-import org.vaadin.maddon.layouts.MHorizontalLayout;
-import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
+import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.CustomersModified;
-import org.vaadin.neo4j.vaadin.events.SourcesModified;
 import org.vaadin.neo4j.vaadin.form.CustomerForm;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBusListener;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.fields.MTable;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
+import com.google.gwt.event.shared.EventBus;
 import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 
-@Component
+@org.springframework.stereotype.Component
 @UIScope
 class CustomerView extends MVerticalLayout {
 
@@ -36,7 +36,7 @@ class CustomerView extends MVerticalLayout {
     CustomerForm customerForm;
 
     @Autowired
-    EventBus eventBus;
+    CustomerChangedNotifier eventBus;
 
     MTable<Customer> listing = new MTable<>(Customer.class).
             withProperties("id","customerName", "project", "partnerType");
@@ -76,20 +76,21 @@ class CustomerView extends MVerticalLayout {
     @PostConstruct
     void init() {
         listSources();
-        eventBus.subscribe(new EventBusListener<CustomersModified>() {
-
-            /**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onEvent(
-                    org.vaadin.spring.events.Event<CustomersModified> event) {
-                listing.removeAllItems();
-				listSources();
-            }
-        });
+        eventBus.subscribe(this::listSources);
+//        eventBus.subscribe(new EventBusListener<CustomersModified>() {
+//
+//            /**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//            public void onEvent(
+//                    org.vaadin.spring.events.Event<CustomersModified> event) {
+//                listing.removeAllItems();
+//				listSources();
+//            }
+//        });
     }
 
     void listSources() {

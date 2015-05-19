@@ -1,13 +1,12 @@
 package org.vaadin.neo4j.vaadin;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.maddon.button.MButton;
-import org.vaadin.maddon.label.RichText;
-import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.vaadin.authentication.BasicAccessControl;
 import org.vaadin.neo4j.vaadin.authentication.LoginScreen;
 import org.vaadin.neo4j.vaadin.authentication.LoginScreen.LoginListener;
-import org.vaadin.spring.VaadinUI;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.label.RichText;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import com.vaadin.annotations.JavaScript;
 import com.vaadin.annotations.StyleSheet;
@@ -17,6 +16,7 @@ import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.ErrorHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -29,9 +29,9 @@ import com.vaadin.ui.UI;
  *
  * @author emorgan
  */
-@VaadinUI()
+@SpringUI(path = "")
 @Title("Pursuit Source Management")
-@Theme("dawn")
+@Theme("valo")
 @Widgetset("org.vaadin.neo4j.vaadin.AppWidgetSet")
 @JavaScript("http://cdn.alloyui.com/2.5.0/aui/aui-min.js")
 @StyleSheet("http://cdn.alloyui.com/2.5.0/aui-css/css/bootstrap.min.css")

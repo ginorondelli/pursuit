@@ -1,20 +1,14 @@
 package org.vaadin.neo4j.vaadin.controller;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.vaadin.domain.Customer;
 import org.vaadin.domain.Source;
-import org.vaadin.maddon.form.AbstractForm;
-import org.vaadin.maddon.form.AbstractForm.SavedHandler;
 import org.vaadin.neo4j.AppService;
-import org.vaadin.neo4j.vaadin.events.SourcesModified;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventScope;
+import org.vaadin.neo4j.vaadin.events.SourceChangedNotifier;
+import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.form.AbstractForm.SavedHandler;
+
+import com.vaadin.spring.annotation.UIScope;
 
 @UIScope
 @Component
@@ -25,14 +19,15 @@ public class SourceFormController implements SavedHandler<Source>,
     AppService appService;
 
     @Autowired
-    EventBus eventBus;
+    SourceChangedNotifier eventBus;
 
     @Override
     public void onSave(Source entity) {
         appService.save(entity);
 //        @SuppressWarnings("unused")
 //		Set<Customer>customerMatches=appService.getCustomerMatches(entity);
-        eventBus.publish(EventScope.UI, this, new SourcesModified());
+//        eventBus.publish(EventScope.UI, this, new SourcesModified());
+        eventBus.onEvent();
     }
 
 	@Override

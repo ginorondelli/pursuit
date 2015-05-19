@@ -12,24 +12,22 @@ import org.vaadin.domain.CustomerSourceStatus;
 import org.vaadin.domain.Person;
 import org.vaadin.domain.PursuitMeta;
 import org.vaadin.domain.Source;
-import org.vaadin.maddon.ListContainer;
-import org.vaadin.maddon.MBeanFieldGroup;
-import org.vaadin.maddon.fields.MTable;
-import org.vaadin.maddon.fields.MTextField;
-import org.vaadin.maddon.form.AbstractForm;
-import org.vaadin.maddon.layouts.MHorizontalLayout;
-import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.controller.SourceFormController;
+import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.CustomersModified;
-import org.vaadin.neo4j.vaadin.events.SourcesModified;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.VaadinComponent;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBusListener;
+import org.vaadin.neo4j.vaadin.events.SourceChangedNotifier;
+import org.vaadin.viritin.ListContainer;
+import org.vaadin.viritin.MBeanFieldGroup;
+import org.vaadin.viritin.fields.MTable;
+import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.Page;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -46,8 +44,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
 
 
+@org.springframework.stereotype.Component
 @UIScope
-@VaadinComponent
 public class SourceForm extends AbstractForm<Source> {
 
 	private Source entity;
@@ -86,8 +84,11 @@ public class SourceForm extends AbstractForm<Source> {
     AppService service;
 
     @Autowired
-    EventBus eventBus;
+    SourceChangedNotifier sourceEvents;
 
+    @Autowired
+    CustomerChangedNotifier customerEvents;
+    
     private Window window;
     private Window matchesWindow;
 
@@ -123,34 +124,42 @@ public class SourceForm extends AbstractForm<Source> {
         agentSourced.setPageLength(6);
 
         populateMeta();
+        sourceEvents.subscribe(this::populateMeta);
+//        eventBus.subscribe(new EventBusListener<SourcesModified>() {
+//
+//            /**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 530211851909626466L;
+//
+//			@Override
+//            public void onEvent(
+//                    org.vaadin.spring.events.Event<SourcesModified> event) {
+//            	populateMeta();
+//            }
+//        });
+ 
+        customerEvents.subscribe(this::refreshCustomersIf);
+        
+//        sourceEvents.subscribe(new EventBusListener<CustomersModified>() {
+//
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//            public void onEvent(
+//                    org.vaadin.spring.events.Event<CustomersModified> event) {
+//				if (null!=entity&&null!=entity.getSourceName()) {
+//					refreshCustomerSourcesTable();
+//				}
+//            }
+//        });
 
-        eventBus.subscribe(new EventBusListener<SourcesModified>() {
 
-            /**
-			 * 
-			 */
-			private static final long serialVersionUID = 530211851909626466L;
-
-			@Override
-            public void onEvent(
-                    org.vaadin.spring.events.Event<SourcesModified> event) {
-            	populateMeta();
-            }
-        });
-        eventBus.subscribe(new EventBusListener<CustomersModified>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-            public void onEvent(
-                    org.vaadin.spring.events.Event<CustomersModified> event) {
-				if (null!=entity&&null!=entity.getSourceName()) {
-					refreshCustomerSourcesTable();
-				}
-            }
-        });
-
-
+    }
+    private void refreshCustomersIf() {
+    	if (null!=entity&&null!=entity.getSourceName()) {
+			refreshCustomerSourcesTable();
+		}	
     }
 
 	private void initTypeOfSourceProject() {
@@ -209,6 +218,17 @@ public class SourceForm extends AbstractForm<Source> {
 	}
 	
 	private void refreshCustomerSourcesTable() {
+
+		customerSourcesTable.removeAllItems();
+    	service.getSource(entity.getId()).getCustomerSources()
+				.forEach((customerSource) -> {
+					customerSourcesTable.addItem(customerSource);
+				});
+	}
+	
+    @Override
+    protected Component createContent() {
+
     	BeanItemContainer<CustomerSourceStatus> customerSourcesContainer =
     		    new BeanItemContainer<CustomerSourceStatus>(CustomerSourceStatus.class);
     	customerSourcesContainer.addNestedContainerProperty("customer.id");
@@ -221,21 +241,6 @@ public class SourceForm extends AbstractForm<Source> {
     	customerSourcesTable.setColumnHeader("customer.customerName","Customer");
     	customerSourcesTable.setColumnHeader("status","Status");
     	customerSourcesTable.setVisibleColumns("customer.id","customer.customerName", "status");
-		customerSourcesTable.removeAllItems();
-    	service.getSource(entity.getId()).getCustomerSources()
-				.forEach((customerSource) -> {
-					customerSourcesTable.addItem(customerSource);
-				});
-	}
-	
-    @Override
-    protected Component createContent() {
-
-
-    	if (null!=entity.getSourceName()) {
-    		refreshCustomerSourcesTable();
-    	}
-
     	customerSourcesTable.addGeneratedColumn("Remove", 
     		      new Table.ColumnGenerator() {
 
@@ -257,7 +262,10 @@ public class SourceForm extends AbstractForm<Source> {
     		          return removeButton;
     		        }
     		      });
-    	
+    	if (null!=entity&&null!=entity.getSourceName()) {
+    		refreshCustomerSourcesTable();
+    	}
+
     	return new 
     		MHorizontalLayout(new 	
 	    		MVerticalLayout(
@@ -286,8 +294,8 @@ public class SourceForm extends AbstractForm<Source> {
 
     @Override
     public MBeanFieldGroup<Source> setEntity(Source entity) {
-        super.setEntity(entity);
     	this.entity=entity;
+        super.setEntity(entity);
         if (null!=entity.getSourceName()) {
         	showInWindow("Edit Source");
         } else {

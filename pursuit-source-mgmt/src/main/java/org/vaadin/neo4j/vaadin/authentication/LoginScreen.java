@@ -2,7 +2,7 @@ package org.vaadin.neo4j.vaadin.authentication;
 
 import java.io.Serializable;
 
-import org.vaadin.maddon.label.RichText;
+import org.vaadin.viritin.label.RichText;
 
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.Page;

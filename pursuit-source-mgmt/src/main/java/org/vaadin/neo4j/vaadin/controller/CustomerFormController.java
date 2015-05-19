@@ -3,13 +3,14 @@ package org.vaadin.neo4j.vaadin.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vaadin.domain.Customer;
-import org.vaadin.maddon.form.AbstractForm;
-import org.vaadin.maddon.form.AbstractForm.SavedHandler;
 import org.vaadin.neo4j.AppService;
+import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.CustomersModified;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventScope;
+import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.form.AbstractForm.SavedHandler;
+
+import com.google.gwt.event.shared.EventBus;
+import com.vaadin.spring.annotation.UIScope;
 
 @UIScope
 @Component
@@ -20,12 +21,13 @@ public class CustomerFormController implements SavedHandler<Customer>,
     AppService customerService;
 
     @Autowired
-    EventBus eventBus;
+    CustomerChangedNotifier eventBus;
 
     @Override
     public void onSave(Customer entity) {
         customerService.save(entity);
-        eventBus.publish(EventScope.UI, this, new CustomersModified());
+        eventBus.onEvent();
+//        eventBus.publish(EventScope.UI, this, new CustomersModified());
     }
 
     @Override

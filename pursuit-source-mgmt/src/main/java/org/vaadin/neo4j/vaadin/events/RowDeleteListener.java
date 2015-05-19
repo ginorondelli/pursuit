@@ -1,11 +1,15 @@
 package org.vaadin.neo4j.vaadin.events;
 
-import org.vaadin.maddon.fields.MTable;
+import org.vaadin.viritin.fields.MTable;
 
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
 public class RowDeleteListener implements ClickListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1671366517895664214L;
 	Object rowId;
 	MTable table;
 	Object entity;

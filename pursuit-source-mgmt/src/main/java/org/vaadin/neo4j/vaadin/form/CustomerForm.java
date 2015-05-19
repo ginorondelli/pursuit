@@ -9,24 +9,21 @@ import org.vaadin.domain.Customer;
 import org.vaadin.domain.CustomerSourceStatus;
 import org.vaadin.domain.Project;
 import org.vaadin.domain.PursuitMeta;
-import org.vaadin.domain.Source;
-import org.vaadin.maddon.ListContainer;
-import org.vaadin.maddon.MBeanFieldGroup;
-import org.vaadin.maddon.fields.MTable;
-import org.vaadin.maddon.fields.MTextField;
-import org.vaadin.maddon.form.AbstractForm;
-import org.vaadin.maddon.layouts.MHorizontalLayout;
-import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.controller.CustomerFormController;
+import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.CustomersModified;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.VaadinComponent;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBusListener;
+import org.vaadin.viritin.ListContainer;
+import org.vaadin.viritin.MBeanFieldGroup;
+import org.vaadin.viritin.fields.MTextField;
+import org.vaadin.viritin.form.AbstractForm;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
+import com.google.gwt.event.shared.EventBus;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -39,11 +36,9 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.TwinColSelect;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 
+@org.springframework.stereotype.Component
 @UIScope
-@VaadinComponent
 public class CustomerForm extends AbstractForm<Customer> {
 
     /**
@@ -86,7 +81,7 @@ public class CustomerForm extends AbstractForm<Customer> {
     AppService service;
 
     @Autowired
-    EventBus eventBus;
+    CustomerChangedNotifier eventBus;
 
     private Window window;
 
@@ -130,15 +125,17 @@ public class CustomerForm extends AbstractForm<Customer> {
         setResetHandler(CustomerFormController);
 
         populateMeta();
+        
+        eventBus.subscribe(this::populateMeta);
 
-        eventBus.subscribe(new EventBusListener<CustomersModified>() {
-
-            @Override
-            public void onEvent(
-                    org.vaadin.spring.events.Event<CustomersModified> event) {
-            	populateMeta();
-            }
-        });
+//        eventBus.subscribe(new EventBusListener<CustomersModified>() {
+//
+//            @Override
+//            public void onEvent(
+//                    org.vaadin.spring.events.Event<CustomersModified> event) {
+//            	populateMeta();
+//            }
+//        });
 
     }
 
@@ -199,7 +196,10 @@ public class CustomerForm extends AbstractForm<Customer> {
 
 	private void refreshCustomerSourcesTable() {
 		if (null!=customer.getCustomerSources()&&customer.getCustomerSources().size()>0) {
-			service.getCustomer(customer.getId()).getCustomerSources().forEach((customerSource)-> {customerSourcesTable.addItem(customerSource);});
+			service.getCustomer(customer.getId()).getCustomerSources()
+					.forEach((customerSource) -> {
+						customerSourcesTable.addItem(customerSource);
+					});
 		}
 	}	
 	
@@ -218,7 +218,7 @@ public class CustomerForm extends AbstractForm<Customer> {
     	customerSourcesTable.setColumnHeader("source.sourceName","Source");
     	customerSourcesTable.setColumnHeader("status","Status");
     	customerSourcesTable.setVisibleColumns("source.id","source.sourceName", "status");
-    	if (null!=customer.getCustomerName()) {
+    	if (null!=customer&&null!=customer.getCustomerName()) {
     		refreshCustomerSourcesTable();
     	}
 
@@ -279,8 +279,8 @@ public class CustomerForm extends AbstractForm<Customer> {
 
     @Override
     public MBeanFieldGroup<Customer> setEntity(Customer entity) {
-        super.setEntity(entity);
         this.customer=entity;
+        super.setEntity(entity);
         List<Customer>customers=null;
 		
         if (null!=entity.getCustomerName()) {

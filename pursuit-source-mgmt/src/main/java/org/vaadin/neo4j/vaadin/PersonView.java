@@ -1,25 +1,21 @@
 package org.vaadin.neo4j.vaadin;
 
-import org.vaadin.neo4j.vaadin.events.PersonsModified;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.vaadin.domain.Person;
-import org.vaadin.domain.Source;
-import org.vaadin.maddon.button.MButton;
-import org.vaadin.maddon.fields.MTable;
-import org.vaadin.maddon.label.RichText;
-import org.vaadin.maddon.layouts.MHorizontalLayout;
-import org.vaadin.maddon.layouts.MVerticalLayout;
 import org.vaadin.neo4j.AppService;
-import org.vaadin.spring.UIScope;
-import org.vaadin.spring.events.EventBus;
-import org.vaadin.spring.events.EventBusListener;
+import org.vaadin.neo4j.vaadin.events.PersonsChangedNotifier;
+import org.vaadin.neo4j.vaadin.events.PersonsModified;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.fields.MTable;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 
 @Component
@@ -38,7 +34,7 @@ class PersonView extends MVerticalLayout {
     PersonForm personForm;
 
     @Autowired
-    EventBus eventBus;
+    PersonsChangedNotifier eventBus;
 
     MTable<Person> listing = new MTable<>(Person.class).
             withProperties("name", "userName");
@@ -71,14 +67,15 @@ class PersonView extends MVerticalLayout {
     @PostConstruct
     void init() {
         listPersons();
-        eventBus.subscribe(new EventBusListener<PersonsModified>() {
-
-            @Override
-            public void onEvent(
-                    org.vaadin.spring.events.Event<PersonsModified> event) {
-                listPersons();
-            }
-        });
+        eventBus.subscribe(this::listPersons);
+//        eventBus.subscribe(new EventBusListener<PersonsModified>() {
+//
+//            @Override
+//            public void onEvent(
+//                    org.vaadin.spring.events.Event<PersonsModified> event) {
+//                listPersons();
+//            }
+//        });
     }
 
     void listPersons() {

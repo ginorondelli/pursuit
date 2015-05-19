@@ -34,5 +34,5 @@
     
 
     <inherits name="org.vaadin.diagrambuilder.WidgetSet" />
-    <inherits name="com.ejt.vaadin.loginform.WidgetSet" />
+    
 </module>
