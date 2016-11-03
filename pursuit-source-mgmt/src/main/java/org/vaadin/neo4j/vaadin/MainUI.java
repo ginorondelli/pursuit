@@ -32,7 +32,7 @@ import com.vaadin.ui.UI;
 @SpringUI(path = "")
 @Title("Pursuit Source Management")
 @Theme("valo")
-@Widgetset("org.vaadin.neo4j.vaadin.AppWidgetSet")
+//@Widgetset("org.vaadin.neo4j.vaadin.AppWidgetSet")
 @JavaScript("http://cdn.alloyui.com/2.5.0/aui/aui-min.js")
 @StyleSheet("http://cdn.alloyui.com/2.5.0/aui-css/css/bootstrap.min.css")
 class MainUI extends UI implements ErrorHandler{

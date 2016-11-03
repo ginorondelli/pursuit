@@ -71,6 +71,11 @@ public class CustomerSourceStatus extends AbstractPositionableEntity{
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "["+getCustomer().getCustomerName() + " - "+getStatus()+"] ";
+	}
 	
 	
 }

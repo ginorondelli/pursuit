@@ -44,6 +44,7 @@ public class Neo4JConf extends Neo4jConfiguration { //implements CommandLineRunn
     	return new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(DBNAME)
                 .setConfig(ShellSettings.remote_shell_enabled, "true")
                 .setConfig(ShellSettings.remote_shell_port, "5555")
+                .setConfig(ShellSettings.remote_shell_host, "0.0.0.0")
                 .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
                 .newGraphDatabase();
     }
