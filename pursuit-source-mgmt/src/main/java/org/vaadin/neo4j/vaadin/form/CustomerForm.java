@@ -12,7 +12,8 @@ import org.vaadin.domain.PursuitMeta;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.controller.CustomerFormController;
 import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
-import org.vaadin.neo4j.vaadin.events.CustomersModified;
+import org.vaadin.neo4j.vaadin.events.CustomerSourceStatusChangedNotifier;
+import org.vaadin.neo4j.vaadin.events.SourceChangedNotifier;
 import org.vaadin.viritin.ListContainer;
 import org.vaadin.viritin.MBeanFieldGroup;
 import org.vaadin.viritin.fields.MTextField;
@@ -20,9 +21,7 @@ import org.vaadin.viritin.form.AbstractForm;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
-import com.google.gwt.event.shared.EventBus;
 import com.vaadin.data.util.BeanItemContainer;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
@@ -81,7 +80,13 @@ public class CustomerForm extends AbstractForm<Customer> {
     AppService service;
 
     @Autowired
-    CustomerChangedNotifier eventBus;
+    SourceChangedNotifier sourceEvents;
+
+    @Autowired
+    CustomerChangedNotifier customerEvents;
+ 
+    @Autowired
+    CustomerSourceStatusChangedNotifier customerSourceStatusEvents;
 
     private Window window;
 
@@ -126,17 +131,11 @@ public class CustomerForm extends AbstractForm<Customer> {
 
         populateMeta();
         
-        eventBus.subscribe(this::populateMeta);
-
-//        eventBus.subscribe(new EventBusListener<CustomersModified>() {
-//
-//            @Override
-//            public void onEvent(
-//                    org.vaadin.spring.events.Event<CustomersModified> event) {
-//            	populateMeta();
-//            }
-//        });
-
+        customerEvents.subscribe(this::populateMeta);
+        sourceEvents.subscribe(this::populateMeta);
+        sourceEvents.subscribe(this::refreshCustomerSourcesTable);
+        customerEvents.subscribe(this::refreshCustomerSourcesTable);
+        customerSourceStatusEvents.subscribe(this::refreshCustomerSourcesTable);
     }
 
 	private void initTypeOfCustomerProject() {
@@ -195,6 +194,7 @@ public class CustomerForm extends AbstractForm<Customer> {
 	}
 
 	private void refreshCustomerSourcesTable() {
+		customerSourcesTable.removeAllItems();
 		if (null!=customer.getCustomerSources()&&customer.getCustomerSources().size()>0) {
 			service.getCustomer(customer.getId()).getCustomerSources()
 					.forEach((customerSource) -> {
@@ -221,35 +221,6 @@ public class CustomerForm extends AbstractForm<Customer> {
     	if (null!=customer&&null!=customer.getCustomerName()) {
     		refreshCustomerSourcesTable();
     	}
-
-    	
-//    	MTable<CustomerSourceStatus> table = new MTable<>(CustomerSourceStatus.class).
-//                withProperties("id","sourceName");
-//    	table.setWidth(50, Unit.PERCENTAGE);
-//    	table.setColumnHeader("id","ID");
-//    	table.setColumnHeader("sourceName","Source");
-//    	
-//    	if (null!=customer.getCustomerName()) {
-//    		table.addBeans(customer.getCustomerSources());
-//    	}
-
-//    	table.addGeneratedColumn("Remove", 
-//    		      new Table.ColumnGenerator() {
-//    		        public Object generateCell(
-//    		          Table source,final Object itemId,Object columnId){
-//    		            Button removeButton = new Button("x");
-//    		            removeButton.addClickListener(new ClickListener(){
-//    		              public void buttonClick(ClickEvent event) {
-//    		                if (null!=itemId) {
-//      		            	  table.removeItem(itemId);
-//      		            	  customer.getSources().remove(itemId);
-//    		                }
-//    		             }
-//    		          });
-//    		          return removeButton;
-//    		        }
-//    		      });
-
 
     	return new MHorizontalLayout(
     			new MVerticalLayout(

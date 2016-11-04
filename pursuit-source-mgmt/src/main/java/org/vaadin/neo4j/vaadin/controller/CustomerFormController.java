@@ -27,7 +27,6 @@ public class CustomerFormController implements SavedHandler<Customer>,
     public void onSave(Customer entity) {
         customerService.save(entity);
         eventBus.onEvent();
-//        eventBus.publish(EventScope.UI, this, new CustomersModified());
     }
 
     @Override

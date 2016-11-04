@@ -5,8 +5,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.domain.Source;
 import org.vaadin.neo4j.AppService;
+import org.vaadin.neo4j.vaadin.events.CustomerSourceStatusChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.SourceChangedNotifier;
-import org.vaadin.neo4j.vaadin.events.SourcesModified;
 import org.vaadin.neo4j.vaadin.form.SourceForm;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTable;
@@ -14,7 +14,6 @@ import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 
@@ -35,7 +34,10 @@ class SourceView extends MVerticalLayout {
     SourceForm sourceForm;
 
     @Autowired
-    SourceChangedNotifier eventBus;
+    SourceChangedNotifier eventBus;    
+    
+    @Autowired
+    CustomerSourceStatusChangedNotifier customerSourceEventBus;
 
     MTable<Source> listing = new MTable<>(Source.class).
             withProperties("id","sourceName", "agentSourced", "agentAssigned", "customerSources");
@@ -75,20 +77,7 @@ class SourceView extends MVerticalLayout {
     void init() {
         listSources();
         eventBus.subscribe(this::refreshListing);
-//        eventBus.subscribe(new EventBusListener<SourcesModified>() {
-//
-//            /**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//            public void onEvent(
-//                    org.vaadin.spring.events.Event<SourcesModified> event) {
-//                listing.removeAllItems();
-//				listSources();
-//            }
-//        });
+        customerSourceEventBus.subscribe(this::refreshListing);
     }
     void refreshListing() {
     	 listing.removeAllItems();

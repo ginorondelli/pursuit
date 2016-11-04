@@ -30,7 +30,7 @@ import org.vaadin.neo4j.repository.SourceRepository;
 public class Neo4JConf extends Neo4jConfiguration { //implements CommandLineRunner {
 //	
 //  private static final String DBNAME = "/home/tomcat/pursuit1.db";
-  private static final String DBNAME = System.getProperty("user.home") + "/pursuit-source-mgmt.db";
+  private static final String DBNAME = System.getProperty("user.home") + "/pursuit-source-mgmt1.db";
   private Logger logger =  Logger.getLogger(Neo4JConf.class);
 
 

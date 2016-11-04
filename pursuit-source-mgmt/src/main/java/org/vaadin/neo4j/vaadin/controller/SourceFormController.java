@@ -24,9 +24,6 @@ public class SourceFormController implements SavedHandler<Source>,
     @Override
     public void onSave(Source entity) {
         appService.save(entity);
-//        @SuppressWarnings("unused")
-//		Set<Customer>customerMatches=appService.getCustomerMatches(entity);
-//        eventBus.publish(EventScope.UI, this, new SourcesModified());
         eventBus.onEvent();
     }
 

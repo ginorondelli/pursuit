@@ -3,20 +3,16 @@ package org.vaadin.neo4j.vaadin;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.vaadin.domain.Customer;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
-import org.vaadin.neo4j.vaadin.events.CustomersModified;
 import org.vaadin.neo4j.vaadin.form.CustomerForm;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTable;
 import org.vaadin.viritin.layouts.MHorizontalLayout;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
-import com.google.gwt.event.shared.EventBus;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Button;
 
@@ -75,25 +71,16 @@ class CustomerView extends MVerticalLayout {
 
     @PostConstruct
     void init() {
-        listSources();
-        eventBus.subscribe(this::listSources);
-//        eventBus.subscribe(new EventBusListener<CustomersModified>() {
-//
-//            /**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//            public void onEvent(
-//                    org.vaadin.spring.events.Event<CustomersModified> event) {
-//                listing.removeAllItems();
-//				listSources();
-//            }
-//        });
-    }
+        listCustomers();
+        eventBus.subscribe(this::refreshListing);
 
-    void listSources() {
+    }
+    void refreshListing() {
+   	 	listing.removeAllItems();
+   	 	listCustomers();
+   }
+
+    void listCustomers() {
         listing.addBeans(customerService.listAllCustomers());
     }
 

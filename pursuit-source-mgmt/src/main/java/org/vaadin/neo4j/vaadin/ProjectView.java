@@ -10,7 +10,6 @@ import org.vaadin.domain.Project;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.ProjectRepository;
 import org.vaadin.neo4j.vaadin.events.ProjectsChangedNotifier;
-import org.vaadin.neo4j.vaadin.events.ProjectsModified;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTable;
 import org.vaadin.viritin.label.RichText;
@@ -44,13 +43,9 @@ class ProjectView extends MVerticalLayout {
     MTable<Project> listing = new MTable<>(Project.class).
             withProperties("name");
     
-//    @Autowired
-//    EventBus bus;
-
     Button saveChanges = new MButton(FontAwesome.FLOPPY_O, e -> {
         repo.save(allProjects);
         eventBus.onEvent();
-//        bus.publish(ProjectView.this, new ProjectsModified());
     });
     
     Button addNew = new MButton(FontAwesome.PLUS, e->{
@@ -60,7 +55,7 @@ class ProjectView extends MVerticalLayout {
     });
     
     Button reset = new MButton(FontAwesome.UNDO, e->{
-        listGroups();
+        listProjects();
     });
 
     public ProjectView() {
@@ -77,19 +72,16 @@ class ProjectView extends MVerticalLayout {
 
     @PostConstruct
     void init() {
-        listGroups();
-        eventBus.subscribe(this::listGroups);
-//        eventBus.subscribe(new EventBusListener<ProjectsModified>() {
-//
-//            @Override
-//            public void onEvent(
-//                    org.vaadin.spring.events.Event<ProjectsModified> event) {
-//                listGroups();
-//            }
-//        });
+    	listProjects();
+        eventBus.subscribe(this::refreshListing);
     }
 
-    void listGroups() {
+    void refreshListing() {
+   	 	listing.removeAllItems();
+   	 	listProjects();
+   }
+    
+    void listProjects() {
         allProjects = service.listAllProjects();
         listing.setBeans(allProjects);
     }

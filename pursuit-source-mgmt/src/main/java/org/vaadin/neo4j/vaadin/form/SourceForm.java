@@ -15,7 +15,7 @@ import org.vaadin.domain.Source;
 import org.vaadin.neo4j.AppService;
 import org.vaadin.neo4j.vaadin.controller.SourceFormController;
 import org.vaadin.neo4j.vaadin.events.CustomerChangedNotifier;
-import org.vaadin.neo4j.vaadin.events.CustomersModified;
+import org.vaadin.neo4j.vaadin.events.CustomerSourceStatusChangedNotifier;
 import org.vaadin.neo4j.vaadin.events.SourceChangedNotifier;
 import org.vaadin.viritin.ListContainer;
 import org.vaadin.viritin.MBeanFieldGroup;
@@ -88,6 +88,10 @@ public class SourceForm extends AbstractForm<Source> {
 
     @Autowired
     CustomerChangedNotifier customerEvents;
+ 
+    @Autowired
+    CustomerSourceStatusChangedNotifier customerSourceStatusEvents;
+     
     
     private Window window;
     private Window matchesWindow;
@@ -125,36 +129,10 @@ public class SourceForm extends AbstractForm<Source> {
 
         populateMeta();
         sourceEvents.subscribe(this::populateMeta);
-//        eventBus.subscribe(new EventBusListener<SourcesModified>() {
-//
-//            /**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 530211851909626466L;
-//
-//			@Override
-//            public void onEvent(
-//                    org.vaadin.spring.events.Event<SourcesModified> event) {
-//            	populateMeta();
-//            }
-//        });
- 
+        sourceEvents.subscribe(this::refreshCustomersIf);
         customerEvents.subscribe(this::refreshCustomersIf);
+        customerSourceStatusEvents.subscribe(this::refreshCustomersIf);
         
-//        sourceEvents.subscribe(new EventBusListener<CustomersModified>() {
-//
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//            public void onEvent(
-//                    org.vaadin.spring.events.Event<CustomersModified> event) {
-//				if (null!=entity&&null!=entity.getSourceName()) {
-//					refreshCustomerSourcesTable();
-//				}
-//            }
-//        });
-
-
     }
     private void refreshCustomersIf() {
     	if (null!=entity&&null!=entity.getSourceName()) {
@@ -256,6 +234,7 @@ public class SourceForm extends AbstractForm<Source> {
 	      		            	  customerSourcesTable.removeItem(itemId);
 	      		            	  getEntity().getCustomerSources().remove(itemId);
 	      		            	  entity=service.save(entity);
+	      		            	customerSourceStatusEvents.onEvent();
 	    		                }
     		             }
     		          });
@@ -360,6 +339,7 @@ public class SourceForm extends AbstractForm<Source> {
                     this.entity=service.getSource(entity.getId());
             		this.entity.getCustomerSources().add(service.save(this.entity.customerSource(event.getValue(), statusMap.get(event.getValue()))));
             		service.save(this.entity);
+            		customerSourceStatusEvents.onEvent();
             		matchesWindow.close();
                 }
             });
